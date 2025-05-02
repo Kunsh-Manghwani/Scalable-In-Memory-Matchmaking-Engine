@@ -1,0 +1,125 @@
+openapi: 3.0.0
+info:
+  title: Scalable In-Memory Matchmaking API
+  version: 1.0.0
+  description: API for user registration, matchmaking, and seeding dummy profiles.
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /profiles:
+    post:
+      summary: Register a new user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        '201':
+          description: Profile created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+    get:
+      summary: Get all profiles
+      parameters:
+        - in: query
+          name: age
+          schema:
+            type: integer
+          description: Filter profiles by age
+        - in: query
+          name: geohash
+          schema:
+            type: string
+          description: Filter profiles by geohash
+      responses:
+        '200':
+          description: List of profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Profile'
+
+  /match/{id}:
+    get:
+      summary: Get top 5 matches for a user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: List of top matches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MatchScore'
+
+  /seed:
+    get:
+      summary: Seed dummy profiles
+      parameters:
+        - in: query
+          name: count
+          schema:
+            type: integer
+          description: Number of profiles to seed
+      responses:
+        '200':
+          description: Confirmation message
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  schemas:
+    Profile:
+      type: object
+      properties:
+        id:
+          type: string
+          example: user123
+        age:
+          type: integer
+          example: 28
+        gender:
+          type: string
+          example: F
+        location:
+          type: object
+          properties:
+            lat:
+              type: number
+              example: 13.7563
+            lon:
+              type: number
+              example: 100.5018
+        interests:
+          type: array
+          items:
+            type: string
+          example: [ "music", "art", "travel" ]
+
+    MatchScore:
+      type: object
+      properties:
+        profile_id:
+          type: string
+          example: user456
+        score:
+          type: number
+          format: float
+          example: 0.85
